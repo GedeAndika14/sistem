@@ -1,0 +1,1684 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Antrian Bank LPD Profesional</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+/* ==============================
+   ===== Variabel Warna LPD Bali =====
+============================== */
+:root {
+  --primary: #001b44;       /* Biru tua elegan */
+  --secondary: #004080;     /* Biru cerah premium */
+  --accent: #e6b800;        /* Emas mewah */
+  --success: #2a9d8f;       /* Hijau premium */
+  --danger: #c1121f;        /* Merah tegas */
+  --bg: linear-gradient(135deg, #f0f4ff, #eaeaea);
+  --glass: rgba(255, 255, 255, 0.2);
+  --glass-blur: 20px;
+  --shadow: 0 8px 30px rgba(0,0,0,0.12);
+  --shadow-strong: 0 18px 50px rgba(0,0,0,0.25);
+}
+
+/* ==============================
+   ===== Global Layout =====
+============================== */
+body {
+  font-family: 'Poppins', sans-serif;
+  background: var(--bg);
+  margin: 0;
+  color: #222;
+}
+
+.container {
+  max-width: 1380px;
+  margin: auto;
+  padding: 26px;
+  animation: fadeIn 0.8s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==============================
+   ===== Header =====
+============================== */
+header {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  padding: 26px 36px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom-left-radius: 28px;
+  border-bottom-right-radius: 28px;
+  box-shadow: var(--shadow-strong);
+  position: relative;
+  overflow: hidden;
+}
+
+header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('https://i.ibb.co/hV6VfWb/bali-pattern.png') repeat;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--accent);
+  text-shadow: 2px 2px 8px rgba(0,0,0,0.45);
+  letter-spacing: 1px;
+  z-index: 1;
+}
+
+#clock {
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: rgba(255,255,255,0.15);
+  padding: 6px 14px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 6px rgba(255,255,255,0.2);
+  z-index: 1;
+}
+
+/* ==============================
+   ===== Statistik Card =====
+============================== */
+.stats {
+  display: flex;
+  gap: 24px;
+  margin: 30px 0;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  flex: 1;
+  min-width: 220px;
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur));
+  border-radius: 22px;
+  padding: 26px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(230,184,0,0.35);
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-6px) scale(1.03);
+  box-shadow: var(--shadow-strong);
+}
+
+.stat-card h3 {
+  margin: 0;
+  color: var(--secondary);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+}
+
+.stat-card p {
+  font-size: 2.4rem;
+  font-weight: 900;
+  margin-top: 16px;
+  color: var(--primary);
+  text-shadow: 2px 2px 6px rgba(0,0,0,0.25);
+}
+
+/* ==============================
+   ===== Nomor Antrian =====
+============================== */
+.current-number {
+  font-size: 4.8rem;
+  font-weight: 900;
+  text-align: center;
+  padding: 38px;
+  border: 6px double var(--accent);
+  border-radius: 32px;
+  margin: 48px auto;
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--shadow-strong);
+  color: var(--primary);
+  transition: all 0.4s ease;
+}
+
+.current-number.priority {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: rgba(255,240,240,0.92);
+}
+
+/* ==============================
+   ===== Form Input =====
+============================== */
+form {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 44px;
+}
+
+form input,
+form select {
+  padding: 13px 18px;
+  border-radius: 14px;
+  border: 1px solid var(--secondary);
+  font-size: 1rem;
+  outline: none;
+  background: rgba(255,255,255,0.95);
+  transition: 0.3s;
+}
+
+form input:focus,
+form select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(230,184,0,0.6);
+}
+
+form button {
+  padding: 13px 30px;
+  border-radius: 14px;
+  border: none;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.6px;
+  transition: 0.3s;
+}
+
+form button:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: var(--shadow-strong);
+}
+
+form button:active {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+/* ==============================
+   ===== Tombol Kontrol =====
+============================== */
+.buttons {
+  margin: 26px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+.buttons button {
+  padding: 13px 24px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition: 0.3s;
+  box-shadow: var(--shadow);
+}
+
+#callNext { background: var(--secondary); color:#fff; }
+#callNext:hover { background: var(--primary); }
+#skipQueue { background: var(--accent); color:#002244; }
+#skipQueue:hover { background: #ffd84f; }
+#resetQueue { background: var(--danger); color:#fff; }
+#resetQueue:hover { background: #900d15; }
+#addLoket, #removeLoket { background: #90e0ef; color: #023e8a; }
+#addLoket:hover, #removeLoket:hover { background: #48cae4; }
+#exportData { background: var(--success); color:#fff; }
+#exportData:hover { background: #1e7a68; }
+
+/* ==============================
+   ===== Status & Riwayat =====
+============================== */
+.status-section {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 28px;
+}
+
+.loket-box,
+.history-box {
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.65),
+    rgba(255,255,255,0.35)
+  );
+  backdrop-filter: blur(var(--glass-blur));
+  border-radius: 20px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+  border-top: 4px solid var(--accent);
+  animation: fadeIn 0.6s ease;
+}
+
+.loket-box h3,
+.history-box h3 {
+  margin-bottom: 14px;
+  color: var(--secondary);
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+/* Loket Item */
+.loket-box ul { list-style: none; padding: 0; margin: 0; }
+.loket-box li {
+  background: rgba(255,255,255,0.96);
+  margin: 8px 0;
+  padding: 14px 18px;
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: 0.25s;
+}
+.loket-box li.serving { border-left: 4px solid var(--accent); background: #fffbe6; }
+.loket-box li.done { border-left: 4px solid var(--success); background: #ecfdf5; }
+.loket-box li:hover { transform: scale(1.01); }
+
+/* ==============================
+   ===== Tabel Riwayat =====
+============================== */
+.history-controls {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.history-controls input {
+  padding: 11px;
+  border-radius: 12px;
+  border: 1px solid var(--secondary);
+  background: rgba(255,255,255,0.95);
+  flex: 1 1 200px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+table th, table td {
+  padding: 13px;
+  text-align: left;
+}
+
+table th {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+}
+
+table tr:nth-child(even) { background: rgba(255,255,255,0.88); }
+
+table tbody tr:hover {
+  background: rgba(230, 184, 0, 0.12);
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+/* ==============================
+   ===== Badge & Toast =====
+============================== */
+.badge {
+  padding: 6px 14px;
+  border-radius: 16px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-waiting { background: var(--primary); }
+.badge-serving { background: var(--accent); color:#002244; }
+.badge-done { background: var(--success); }
+.badge-over { background: var(--danger); }
+
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--primary);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 14px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  z-index: 9999;
+  box-shadow: var(--shadow-strong);
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* ==============================
+   ===== Scrollbar Custom =====
+============================== */
+::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.05);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #ffd84f;
+}
+
+/* ==============================
+   ===== Responsive =====
+============================== */
+@media (max-width: 1024px) {
+  .stats { flex-direction: column; gap: 20px; }
+  .status-section { grid-template-columns: 1fr; gap: 22px; }
+  .buttons { flex-wrap: wrap; }
+  table { font-size: 0.95rem; }
+}
+@media (max-width: 768px) {
+  header { flex-direction: column; text-align: center; gap: 10px; }
+  header h1 { font-size: 1.7rem; }
+  #clock { font-size: 0.9rem; }
+  .current-number { font-size: 3.2rem; padding: 22px; }
+  .buttons button { flex: 1 1 48%; }
+  table { display: block; overflow-x: auto; }
+}
+@media (max-width: 480px) {
+  header { padding: 14px 16px; }
+  header h1 { font-size: 1.4rem; }
+  #clock { font-size: 0.8rem; }
+  .current-number { font-size: 2.6rem; padding: 16px; }
+  .stat-card p { font-size: 1.6rem; }
+  .buttons { flex-direction: column; gap: 10px; }
+  .buttons button { width: 100%; font-size: 0.9rem; }
+  table { font-size: 0.85rem; }
+}
+
+.section-card {
+  background: var(--glass);
+  backdrop-filter: blur(var(--glass-blur));
+  padding: 26px;
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 28px;
+  border-top: 5px solid var(--accent);
+}
+
+.section-title {
+  margin-bottom: 18px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+  border-left: 5px solid var(--secondary);
+  padding-left: 12px;
+}
+
+header .logo {
+  height: 48px;
+  margin-right: 14px;
+}
+
+header .header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-card.highlight {
+  background: linear-gradient(135deg, #fffbe6, #fff);
+  text-align: center;
+}
+
+.section-title {
+  text-align: left;   /* ubah dari center ke kiri */
+}
+/* ===== Reset dan Dasar ===== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: #f5f7fa;
+  color: #333;
+}
+
+/* ===== Header Elegan ===== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #001b44, #004080);
+  color: #fff;
+  border-bottom: 4px solid #e6b800;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  border-radius: 0 0 14px 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.logo-lpd {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+.header-left h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #ffd700, #fff8dc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  white-space: nowrap;
+}
+
+.clock {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffd700;
+  padding: 6px 12px;
+  border: 2px solid #ffd700;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 8px rgba(255,215,0,0.4);
+  min-width: 90px;
+  text-align: center;
+}
+
+/* ===== Container ===== */
+.container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 16px;
+}
+
+/* ===== Section Card ===== */
+.section-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* ===== Statistik ===== */
+.stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.stat-card {
+  flex: 1 1 120px;
+  background: #f0f4ff;
+  border-radius: 10px;
+  padding: 12px 14px;
+  text-align: center;
+}
+
+.stat-card h3 {
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.stat-card p {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #001b44;
+}
+
+/* ===== Form ===== */
+.form-elegant {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.form-elegant input,
+.form-elegant select {
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+.form-elegant input:focus,
+.form-elegant select:focus {
+  border-color: #e6b800;
+  box-shadow: 0 0 10px rgba(230,184,0,0.4);
+  background: #fff;
+}
+
+.btn-submit {
+  padding: 12px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ffd700, #b8860b);
+  color: #1a1a1a;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  filter: brightness(1.05);
+}
+
+.btn-submit:active {
+  transform: scale(0.97);
+}
+
+/* ===== Tombol Kontrol ===== */
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.buttons button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn {
+  background-color: #c1121f;
+  color: #fff;
+}
+
+.logout-btn:hover {
+  background-color: #e63946;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+.logout-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* ===== Status & Riwayat ===== */
+.status-section {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.loket-box, .history-box {
+  flex: 1 1 300px;
+}
+
+.loket-box ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.loket-box li {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 12px;
+  margin-bottom: 6px;
+  background: #f0f4ff;
+  border-radius: 8px;
+}
+
+.badge {
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-waiting { background: #ddd; color: #555; }
+.badge-serving { background: #ffd700; color: #001b44; }
+.badge-done { background: #00a86b; color: #fff; }
+
+.history-box table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.history-box th, .history-box td {
+  padding: 8px 6px;
+  font-size: 0.85rem;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+}
+
+.history-box input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+/* ===== Nomor Antrian Highlight ===== */
+.current-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #001b44;
+  text-align: center;
+  padding: 20px;
+  border-radius: 12px;
+  background: #fffbe6;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  margin-top: 12px;
+}
+
+/* ===== Footer ===== */
+footer {
+  text-align: center;
+  padding: 20px;
+  margin-top: 30px;
+  font-size: 0.9rem;
+  color: #555;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(12px);
+  border-radius: 12px;
+}
+
+/* ===== Responsif ===== */
+@media (max-width: 992px) {
+  .stats { justify-content: center; }
+  .status-section { flex-direction: column; }
+  .history-box table th, .history-box table td { font-size: 0.8rem; }
+}
+
+@media (max-width: 768px) {
+  .header { flex-direction: column; text-align: center; }
+  .header-left { flex-direction: column; }
+  .logo-lpd { height: 40px; }
+  .header-left h1 { font-size: 1.4rem; }
+  .clock { font-size: 1rem; margin-top: 6px; }
+  .stat-card { flex: 1 1 100%; }
+  .buttons { flex-direction: column; }
+}
+
+@media (max-width: 480px) {
+  .header-left h1 { font-size: 1.2rem; }
+  .btn-submit { font-size: 0.95rem; padding: 10px; }
+  .current-number { font-size: 1.5rem; padding: 16px; }
+  .history-box table th, .history-box table td { font-size: 0.75rem; padding: 6px; }
+  .form-elegant input, .form-elegant select { font-size: 0.9rem; padding: 10px; }
+}
+/* ===== Smooth Scroll Halus ===== */
+html {
+  scroll-behavior: smooth; /* scroll antar anchor akan halus */
+}
+
+/* Scroll di div kontainer (misal tabel antrian) */
+#queueTableContainer {
+  max-height: 400px; /* tinggi maksimal tabel */
+  overflow-y: auto;
+  scroll-behavior: smooth; /* scroll halus di div */
+  scrollbar-width: thin; /* untuk Firefox */
+  scrollbar-color: #888 #f1f1f1; /* untuk Firefox */
+}
+
+/* Scrollbar kustom untuk Chrome, Edge, Safari */
+#queueTableContainer::-webkit-scrollbar {
+  width: 8px;
+}
+
+#queueTableContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+#queueTableContainer::-webkit-scrollbar-thumb {
+  background-color: #888;
+  border-radius: 4px;
+  border: 2px solid #f1f1f1;
+}
+
+#queueTableContainer::-webkit-scrollbar-thumb:hover {
+  background-color: #555;
+}
+/* ===== Toast Notification Elegan ===== */
+#toast {
+  visibility: hidden;
+  min-width: 260px;
+  max-width: 400px;
+  margin: auto;
+  background: #222;
+  color: #fff;
+  text-align: center;
+  border-radius: 12px;
+  padding: 14px 20px;
+  position: fixed;
+  z-index: 1000;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%) translateY(30px);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  opacity: 0;
+  transition: all 0.35s ease-in-out;
+}
+
+/* Saat muncul */
+#toast.show {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+  </style>
+</head>
+
+<body>
+
+  <!-- ===== Header Elegan ===== -->
+<header class="header">
+  <div class="header-left">
+    <!-- Logo LPD -->
+    <img src="img/logo-lpdbali.png" alt="Logo LPD Bali" class="logo-lpd">
+    <h1>Sistem Antrian LPD Bali</h1>
+  </div>
+  <div id="clock" class="clock"></div>
+</header>
+
+<style>
+/* ===== Header Elegan ===== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #001b44, #004080);
+  color: #fff;
+  border-bottom: 4px solid #e6b800;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  border-radius: 0 0 14px 14px;
+  animation: fadeInDown 0.6s ease;
+  flex-wrap: wrap; /* agar tetap rapi di layar kecil */
+  gap: 10px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-lpd {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+.header-left h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: linear-gradient(90deg, #ffd700, #fff8dc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  white-space: nowrap;
+}
+
+.clock {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffd700;
+  padding: 6px 12px;
+  border: 2px solid #ffd700;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 8px rgba(255,215,0,0.4);
+  min-width: 90px;
+  text-align: center;
+}
+
+/* Animasi Header */
+@keyframes fadeInDown {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Responsif ===== */
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    text-align: center;
+  }
+  .header-left {
+    flex-direction: column;
+  }
+  .logo-lpd {
+    height: 40px;
+  }
+  .header-left h1 {
+    font-size: 1.4rem;
+  }
+  .clock {
+    font-size: 1rem;
+    margin-top: 6px;
+  }
+}
+</style>
+
+
+  <div class="container">
+    <!-- ===== Statistik ===== -->
+    <section class="section-card">
+      <h2 class="section-title">📊 Statistik Antrian</h2>
+      <div class="stats">
+        <div class="stat-card">
+          <h3>Menunggu</h3>
+          <p id="statWaiting">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Dilayani</h3>
+          <p id="statServing">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Selesai</h3>
+          <p id="statDone">0</p>
+        </div>
+        <div class="stat-card">
+          <h3>Estimasi Tunggu</h3>
+          <p id="statEstimate">0 mnt</p>
+        </div>
+      </div>
+    </section>
+
+   <!-- ===== Form Ambil Nomor ===== -->
+<section class="section-card form-section">
+  <h2 class="section-title">📝 Ambil Nomor Antrian</h2>
+  <form id="userForm" class="form-elegant">
+    <input type="text" id="name" placeholder="Masukkan nama lengkap Anda" required>
+    <input type="tel" id="phone" placeholder="Nomor HP aktif (08xxxx)" required>
+    <select id="service" required>
+      <option value="">-- Pilih Jenis Layanan --</option>
+      <option value="U">Layanan Umum</option>
+      <option value="S">Setoran Tunai</option>
+      <option value="P">Penarikan Tunai</option>
+      <option value="R">Pembukaan Tabungan</option>
+      <option value="D">Deposito</option>
+      <option value="K">Kredit Baru</option>
+      <option value="A">Angsuran Kredit</option>
+      <option value="M">Administrasi</option>
+      <option value="I">Konsultasi Produk</option>
+    </select>
+    <input type="text" id="note" placeholder="Tambahkan catatan (opsional)">
+    <button type="submit" class="btn-submit">✨ Ambil Nomor</button>
+  </form>
+  <p class="note">Harap pastikan data yang Anda masukkan benar.</p>
+</section>
+
+<style>
+/* ===== Form Elegan ===== */
+.form-elegant {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.form-elegant input,
+.form-elegant select {
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.3s ease;
+  background: #fafafa;
+}
+
+/* Fokus dengan glow mewah */
+.form-elegant input:focus,
+.form-elegant select:focus {
+  border-color: #e6b800;
+  box-shadow: 0 0 10px rgba(230,184,0,0.4);
+  background: #fff;
+}
+
+/* Tombol Submit */
+.btn-submit {
+  padding: 12px 18px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ffd700, #b8860b);
+  color: #1a1a1a;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  filter: brightness(1.05);
+}
+
+.btn-submit:active {
+  transform: scale(0.97);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+}
+
+/* Catatan bawah */
+.note {
+  font-size: 0.9rem;
+  color: #555;
+  text-align: center;
+  margin-top: 10px;
+}
+</style>
+
+<!-- ===== Display Nomor Antrian ===== -->
+<section class="section-card highlight">
+  <h2 class="section-title" style="text-align:left;">🎟 Nomor Antrian Saat Ini</h2>
+  <div class="current-number" id="currentNumber">0</div>
+  <p style="text-align:center;color:#444;margin-top:12px;">
+    Silakan tunggu nomor Anda dipanggil melalui layar & pengeras suara.
+  </p>
+</section>
+
+
+  <!-- ===== Tombol Kontrol ===== -->
+<section class="section-card">
+  <h2 class="section-title">⚙️ Kontrol Antrian</h2>
+  <div class="buttons">
+    <button id="callNext">➡️ Panggil Berikutnya</button>
+    <button id="skipQueue">⏭ Lewati</button>
+    <button id="resetQueue">♻️ Reset</button>
+    <button id="addLoket">➕ Tambah Loket</button>
+    <button id="removeLoket">➖ Hapus Loket</button>
+    <button id="exportData">📂 Export Data</button>
+    <!-- Tambahan tombol logout -->
+    <button id="logoutBtn" class="logout-btn">🚪 Logout</button>
+  </div>
+</section>
+
+<style>
+  /* Style dasar tombol */
+  .buttons button {
+    padding: 10px 18px;
+    margin: 6px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  /* Style khusus tombol Logout */
+  .logout-btn {
+    background-color: #c1121f; /* merah premium */
+    color: #fff;
+  }
+
+  .logout-btn:hover {
+    background-color: #e63946;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+  }
+
+  .logout-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+</style>
+
+<script>
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    sessionStorage.removeItem("adminLoggedIn");
+    window.location.href = "login.html";
+  });
+</script>
+
+
+  <!-- ===== Status & Riwayat ===== -->
+<section class="section-card">
+  <h2 class="section-title">📌 Status Loket & Riwayat</h2>
+  <div class="status-section">
+    
+    <!-- Status Loket -->
+    <div class="loket-box card">
+      <h3 class="box-title">🔹 Status Loket</h3>
+      <ul id="loketStatus" class="loket-list">
+        <li><span>Loket 1</span><span class="badge badge-waiting">Kosong</span></li>
+        <li><span>Loket 2</span><span class="badge badge-waiting">Kosong</span></li>
+        <li><span>Loket 3</span><span class="badge badge-waiting">Kosong</span></li>
+      </ul>
+    </div>
+
+    <!-- Riwayat Antrian -->
+    <div class="history-box card">
+      <h3 class="box-title">📜 Riwayat Antrian</h3>
+      <div class="history-controls">
+        <input type="text" id="searchBox" placeholder="🔍 Cari nama / no antrian...">
+      </div>
+
+      <!-- Tabel Versi Desktop -->
+      <div class="table-wrapper">
+        <table class="responsive-table">
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Nama</th>
+              <th>Layanan</th>
+              <th>Status</th>
+              <th>Waktu</th>
+              <th>Catatan</th>
+            </tr>
+          </thead>
+          <tbody id="queueTable">
+            <tr>
+              <td>1</td>
+              <td>Andi</td>
+              <td>Layanan Umum</td>
+              <td><span class="badge badge-waiting">Waiting</span></td>
+              <td>11:08</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Budi</td>
+              <td>Konsultasi</td>
+              <td><span class="badge badge-success">Selesai</span></td>
+              <td>11:15</td>
+              <td>-</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+/* ===== Umum ===== */
+.section-card { padding: 16px; }
+.section-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+
+/* ===== Card ===== */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 18px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+.box-title { font-size: 16px; font-weight: 600; margin-bottom: 12px; color: #1a3d7c; }
+
+/* ===== Loket ===== */
+.loket-list { list-style: none; padding: 0; margin: 0; }
+.loket-list li {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 10px 12px; margin-bottom: 10px;
+  background: #f9f9f9; border-radius: 8px;
+  font-size: 15px;
+}
+
+/* ===== Badge ===== */
+.badge {
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.badge-waiting { background: #eee; color: #555; }
+.badge-success { background: #2ecc71; color: #fff; }
+.badge-error   { background: #e74c3c; color: #fff; }
+.badge-info    { background: #3498db; color: #fff; }
+
+/* ===== Search Box ===== */
+.history-controls { margin-bottom: 12px; }
+.history-controls input {
+  width: 100%; padding: 10px 14px;
+  border: 1px solid #ddd; border-radius: 8px;
+  font-size: 14px;
+}
+
+/* ===== Tabel Default (Desktop) ===== */
+.table-wrapper { overflow-x: auto; }
+.responsive-table {
+  width: 100%; border-collapse: collapse;
+}
+.responsive-table th,
+.responsive-table td {
+  padding: 10px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+.responsive-table th {
+  background: #1a3d7c; color: #fff; font-weight: 600;
+}
+
+/* ===== Mobile: Ubah tabel jadi kartu ===== */
+@media (max-width: 768px) {
+  .responsive-table thead { display: none; }
+  .responsive-table, .responsive-table tbody, .responsive-table tr, .responsive-table td {
+    display: block; width: 100%;
+  }
+  .responsive-table tr {
+    margin-bottom: 12px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    padding: 10px;
+    background: #fafafa;
+  }
+  .responsive-table td {
+    text-align: left;
+    padding: 6px 8px;
+    border: none;
+    font-size: 14px;
+    position: relative;
+  }
+  .responsive-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    display: block;
+    color: #333;
+    margin-bottom: 2px;
+  }
+}
+</style>
+
+<script>
+// Auto tambahkan label ke setiap cell (untuk tampilan mobile card)
+document.querySelectorAll(".responsive-table tbody tr").forEach(tr=>{
+  tr.querySelectorAll("td").forEach((td,i)=>{
+    let header = document.querySelector(".responsive-table thead th:nth-child("+(i+1)+")");
+    if(header) td.setAttribute("data-label", header.innerText);
+  });
+});
+</script>
+
+  </div>
+  
+
+  <!-- ===== Toast ===== -->
+  <div class="toast" id="toast"></div>
+
+  <!-- ===== Footer Elegan ===== -->
+  <footer style="text-align:center;padding:20px;margin-top:30px;font-size:0.9rem;color:#555;background:rgba(255,255,255,0.6);backdrop-filter:blur(12px);">
+    <p><strong>LPD Bali</strong> bersama <strong>PT.USSI</strong> © 2025 | Sistem Antrian Digital</p>
+    <p style="margin-top:6px;">Didesain untuk meningkatkan pelayanan, efisiensi, dan kenyamanan nasabah</p>
+  </footer>
+  
+  <!-- ===== Background Music Rindik Bali ===== -->
+<audio id="rindikPlayer" loop autoplay hidden>
+  <source src="https://archive.org/download/rindik-bali/Rindik%20Bali.mp3" type="audio/mpeg">
+  Browser Anda tidak mendukung audio tag.
+</audio>
+
+<button id="toggleMusic" class="btn-music">🎵 Matikan Musik</button>
+
+</body>
+
+<script>
+let queueNumber = 0, history = [], loketCount = 3, loketPointer = 0;
+
+const currentNumberDisplay = document.getElementById('currentNumber');
+const queueTableBody = document.getElementById('queueTable');
+const loketStatus = document.getElementById('loketStatus');
+const toast = document.getElementById("toast");
+
+if(sessionStorage.getItem("adminLoggedIn") !== "true"){
+  window.location.href = "login.html";
+}
+
+/* ===== Mapping Layanan ===== */
+const layananMap = {
+  "U": "Layanan Umum (Informasi, dll.)",
+  "S": "Setoran Tunai", 
+  "P": "Penarikan Tunai",
+  "R": "Pembukaan Rekening Tabungan",
+  "D": "Pembukaan Deposito",
+  "K": "Pengajuan Kredit Baru",
+  "A": "Pembayaran / Angsuran Kredit",
+  "M": "Layanan Administrasi",
+  "I": "Konsultasi & Informasi Produk"
+};
+
+/* ===== Toast ===== */
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),2500);
+}
+
+/* ===== Statistik ===== */
+function updateStats() {
+  let waiting = history.filter(h => h.status === "waiting").length;
+  let serving = history.filter(h => h.status === "serving").length;
+  let done = history.filter(h => h.status === "done").length;
+
+  document.getElementById("statWaiting").textContent = waiting;
+  document.getElementById("statServing").textContent = serving;
+  document.getElementById("statDone").textContent = done;
+
+  let avgTimePerQueue = 5;
+  let estimate = waiting * avgTimePerQueue;
+  document.getElementById("statEstimate").textContent = `${estimate} mnt`;
+}
+
+/* ===== Inisialisasi Loket ===== */
+function initLoket(){
+  loketStatus.innerHTML = '';
+  for(let i=1; i<=loketCount; i++){
+    let li = document.createElement('li');
+    let currentServing = history.find(h=>h.loket===i && h.status==="serving");
+    if(currentServing){
+      li.innerHTML = `<span>Loket ${i}</span><span class="badge badge-serving">${currentServing.no}</span>`;
+    } else {
+      li.innerHTML = `<span>Loket ${i}</span><span class="badge badge-waiting">Kosong</span>`;
+    }
+    loketStatus.appendChild(li);
+  }
+  updateLoketHighlight();
+}
+
+/* ===== Simpan ke localStorage ===== */
+function saveData(){
+  localStorage.setItem("queueNumber", queueNumber);
+  localStorage.setItem("history", JSON.stringify(history));
+  localStorage.setItem("loketCount", loketCount);
+}
+
+/* ===== Load data dari localStorage ===== */
+function loadData(){
+  queueNumber = parseInt(localStorage.getItem("queueNumber")) || 0;
+  history = JSON.parse(localStorage.getItem("history")) || [];
+  loketCount = parseInt(localStorage.getItem("loketCount")) || 3;
+
+  renderHistory();
+  updateStats();
+  initLoket();
+}
+loadData();
+
+/* ===== Render Riwayat ===== */
+function renderHistory() {
+  queueTableBody.innerHTML = "";
+  history.forEach(item => {
+    let aksi = "";
+    if(item.status === "serving"){
+      aksi = `<button class="btn-done" onclick="markDone('${item.no}')">✅ Selesai</button>
+              <button class="btn-recall" onclick="recall('${item.no}')">🔄 Ulangi</button>`;
+    }
+    let badgeClass = item.status === "waiting" ? "badge-waiting" :
+                     item.status === "serving" ? "badge-serving" : "badge-done";
+    let row = `
+      <tr>
+        <td>${item.no}</td>
+        <td>${item.name}</td>
+        <td>${layananMap[item.service]}</td>
+        <td><span class="badge ${badgeClass}">${item.status}</span></td>
+        <td>${item.waktu}</td>
+        <td>${item.note || '-'}</td>
+        <td>${aksi}</td>
+      </tr>`;
+    queueTableBody.innerHTML += row;
+  });
+}
+
+/* ===== Highlight Loket Aktif ===== */
+function updateLoketHighlight() {
+  for (let i = 0; i < loketStatus.children.length; i++) {
+    let li = loketStatus.children[i];
+    if (li.innerText.includes("Kosong")) li.classList.remove("active-loket");
+    else li.classList.add("active-loket");
+  }
+}
+
+/* ===== Tambah Antrian ===== */
+document.getElementById('userForm').addEventListener('submit', e=>{
+  e.preventDefault();
+  let name = document.getElementById('name').value.trim();
+  let phone = document.getElementById('phone').value.trim();
+  let service = document.getElementById('service').value;
+  let note = document.getElementById('note').value.trim();
+  if(!name || !phone || !service){
+    showToast("⚠️ Lengkapi semua data terlebih dahulu!");
+    return;
+  }
+
+  queueNumber++;
+  let nomor = service + String(queueNumber).padStart(3,'0');
+  let waktu = new Date().toLocaleTimeString();
+  history.push({no:nomor,name,service,status:"waiting",waktu,note,loket:null});
+  renderHistory();
+  updateStats();
+  saveData();
+  showToast(`✅ Nomor ${nomor} berhasil diambil!`);
+  document.getElementById('userForm').reset();
+});
+
+/* ===== Panggil Berikutnya ===== */
+document.getElementById("callNext").addEventListener("click", ()=> {
+  let waiting = history.find(h=>h.status==="waiting");
+  if(!waiting){ showToast("⚠️ Tidak ada antrian menunggu"); return; }
+
+  waiting.status="serving";
+  currentNumberDisplay.textContent = waiting.no;
+
+  loketPointer = (loketPointer % loketCount) + 1;
+  waiting.loket = loketPointer;
+
+  let loketItem = loketStatus.children[loketPointer-1];
+  loketItem.innerHTML = `<span>Loket ${loketPointer}</span><span class="badge badge-serving">${waiting.no}</span>`;
+
+  renderHistory();
+  updateStats();
+  saveData();
+  showToast(`🔔 Nomor ${waiting.no} dipanggil ke Loket ${loketPointer}`);
+  playCallSound(waiting.no);
+  updateLoketHighlight();
+});
+
+/* ===== Tandai Selesai ===== */
+function markDone(no){
+  let serving = history.find(h=>h.no===no && h.status==="serving");
+  if(serving){
+    serving.status="done";
+    let loketItem = loketStatus.children[serving.loket-1];
+    loketItem.innerHTML = `<span>Loket ${serving.loket}</span><span class="badge badge-waiting">Kosong</span>`;
+    renderHistory();
+    updateStats();
+    saveData();
+    showToast(`✅ Nomor ${serving.no} selesai di Loket ${serving.loket}`);
+    updateLoketHighlight();
+  }
+}
+
+/* ===== Recall ===== */
+function recall(no){
+  let serving = history.find(h=>h.no===no && h.status==="serving");
+  if(serving){
+    playRecallSound(serving.no);
+    let loketItem = loketStatus.children[serving.loket-1];
+    loketItem.classList.add("active-loket");
+  }
+}
+
+/* ===== Skip Antrian ===== */
+document.getElementById("skipQueue").addEventListener("click", ()=>{
+  let serving = history.find(h=>h.status==="serving");
+  if(serving){
+    serving.status="done";
+    let loketItem = loketStatus.children[serving.loket-1];
+    loketItem.innerHTML = `<span>Loket ${serving.loket}</span><span class="badge badge-waiting">Kosong</span>`;
+    renderHistory();
+    updateStats();
+    saveData();
+    showToast(`⏭ Nomor ${serving.no} dilewati/dinyatakan selesai.`);
+    updateLoketHighlight();
+  } else {
+    showToast("⚠️ Tidak ada nomor yang sedang dilayani");
+  }
+});
+
+/* ===== Reset Antrian ===== */
+document.getElementById("resetQueue").addEventListener("click", ()=>{
+  history = [];
+  queueNumber=0;
+  currentNumberDisplay.textContent="0";
+  renderHistory();
+  updateStats();
+  initLoket();
+  saveData();
+  showToast("♻️ Antrian direset!");
+});
+
+/* ===== Suara Panggilan Berwibawa dan Tegas ===== */
+function playCallSound(no) {
+  let beep = new Audio("https://www.soundjay.com/buttons/sounds/beep-07.mp3");
+  beep.play();
+
+  setTimeout(() => {
+    const msg = new SpeechSynthesisUtterance();
+    msg.text = `⚠️ Perhatian... Nomor antrian ${no}. Mohon segera menuju loket. Terima kasih.`;
+    msg.lang = "id-ID";
+    msg.rate = 0.9;    // agak lambat → lebih jelas & berwibawa
+    msg.pitch = 0.7;   // lebih rendah → tegas
+    msg.volume = 1;
+
+    const voices = window.speechSynthesis.getVoices();
+    const maleVoice = voices.find(v => v.lang.includes("id") && v.name.toLowerCase().includes("male"))
+                   || voices.find(v => v.lang.includes("id"));
+    if(maleVoice) msg.voice = maleVoice;
+
+    window.speechSynthesis.speak(msg);
+  }, 500);
+}
+
+function playRecallSound(no) {
+  let beep = new Audio("https://www.soundjay.com/buttons/sounds/beep-07.mp3");
+  beep.play();
+
+  setTimeout(() => {
+    const msg = new SpeechSynthesisUtterance();
+    msg.text = `Nomor antrian ${no}... harap segera kembali ke loket.`;
+    msg.lang = "id-ID";
+    msg.rate = 0.9;
+    msg.pitch = 0.7;
+    msg.volume = 1;
+
+    const voices = window.speechSynthesis.getVoices();
+    const maleVoice = voices.find(v => v.lang.includes("id") && v.name.toLowerCase().includes("male"))
+                   || voices.find(v => v.lang.includes("id"));
+    if(maleVoice) msg.voice = maleVoice;
+
+    window.speechSynthesis.speak(msg);
+  }, 500);
+}
+
+
+
+
+
+/* ===== Tambah/Hapus Loket Dinamis ===== */
+document.getElementById("addLoket").addEventListener("click", ()=>{
+  loketCount++;
+  initLoket();
+  saveData();
+  showToast(`➕ Loket baru ditambahkan. Total Loket: ${loketCount}`);
+});
+
+document.getElementById("removeLoket").addEventListener("click", ()=>{
+  if(loketCount <= 1){
+    showToast("⚠️ Tidak bisa menghapus semua loket!");
+    return;
+  }
+  let removedLoket = loketCount;
+  history.forEach(h=>{
+    if(h.loket === removedLoket && h.status==="serving") h.status="waiting";
+  });
+  loketCount--;
+  initLoket();
+  updateStats();
+  saveData();
+  showToast(`➖ Loket ${removedLoket} dihapus. Total Loket: ${loketCount}`);
+});
+
+/* ===== Export Data ke CSV ===== */
+document.getElementById("exportData").addEventListener("click", ()=>{
+  if(history.length === 0){
+    showToast("⚠️ Tidak ada data untuk diexport");
+    return;
+  }
+  let csvContent = "data:text/csv;charset=utf-8,";
+  csvContent += "No,Name,Layanan,Status,Waktu,Note,Loket\n";
+  history.forEach(h=>{
+    let row = [h.no,h.name,layananMap[h.service],h.status,h.waktu,h.note || "-",h.loket || "-"].join(",");
+    csvContent += row + "\n";
+  });
+  let encodedUri = encodeURI(csvContent);
+  let link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "antrian_lpd.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast("💾 Data berhasil diexport!");
+});
+
+/* ===== Jam Real-time ===== */
+function updateClock(){
+  const clockEl = document.getElementById("clock");
+  if(clockEl){
+    clockEl.textContent = new Date().toLocaleTimeString();
+  }
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+function scrollToBottom(){
+  const container = document.getElementById("queueTableContainer");
+  if(container){
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: "smooth" // halus
+    });
+  }
+}
+
+/* Panggil fungsi ini setiap renderHistory atau saat panggil nomor */
+function renderHistory() {
+  queueTableBody.innerHTML = "";
+  history.forEach(item => {
+    let aksi = "";
+    if(item.status === "serving"){
+      aksi = `<button class="btn-done" onclick="markDone('${item.no}')">✅ Selesai</button>
+              <button class="btn-recall" onclick="recall('${item.no}')">🔄 Ulangi</button>`;
+    }
+    let badgeClass = item.status === "waiting" ? "badge-waiting" :
+                     item.status === "serving" ? "badge-serving" : "badge-done";
+    let row = `
+      <tr>
+        <td>${item.no}</td>
+        <td>${item.name}</td>
+        <td>${layananMap[item.service]}</td>
+        <td><span class="badge ${badgeClass}">${item.status}</span></td>
+        <td>${item.waktu}</td>
+        <td>${item.note || '-'}</td>
+        <td>${aksi}</td>
+      </tr>`;
+    queueTableBody.innerHTML += row;
+  });
+
+  scrollToBottom(); // scroll otomatis ke bawah
+}
+
+// ===== Fitur Pencarian Real-time =====
+const searchBox = document.getElementById("searchBox");
+
+searchBox.addEventListener("input", () => {
+  const keyword = searchBox.value.toLowerCase().trim();
+  
+  const rows = queueTableBody.getElementsByTagName("tr");
+  for (let row of rows) {
+    const no = row.cells[0].textContent.toLowerCase();
+    const name = row.cells[1].textContent.toLowerCase();
+
+    if(no.includes(keyword) || name.includes(keyword)){
+      row.style.display = ""; // tampilkan
+    } else {
+      row.style.display = "none"; // sembunyikan
+    }
+  }
+});
+/* ===== Fungsi Toast ===== */
+function showToast(message) {
+  const toast = document.getElementById("toast");
+
+  toast.textContent = message;
+  toast.classList.add("show");
+
+  // Tutup otomatis setelah 3 detik
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3000);
+}
+/* ===== Tandai Selesai ===== */
+function markDone(no){
+  let serving = history.find(h=>h.no===no && h.status==="serving");
+  if(serving){
+    serving.status="done";
+
+    // kosongkan loket
+    let loketItem = loketStatus.children[serving.loket-1];
+    loketItem.innerHTML = `<span>Loket ${serving.loket}</span><span class="badge badge-waiting">Kosong</span>`;
+
+    // kosongkan nomor antrian di layar utama
+    currentNumberDisplay.textContent = "0";
+
+    renderHistory();
+    updateStats();
+    saveData();
+    showToast(`✅ Nomor ${serving.no} selesai di Loket ${serving.loket}`);
+    updateLoketHighlight();
+  }
+}
+</script>
+
+<!-- ===== Toast Notification ===== -->
+<div id="toast"></div>
+
+</body>
+</html>

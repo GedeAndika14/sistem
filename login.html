@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login & Register Admin LPD Bali</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  * { box-sizing: border-box; margin:0; padding:0; font-family:'Poppins',sans-serif; }
+
+  body {
+    display:flex; justify-content:center; align-items:center; height:100vh;
+    background: linear-gradient(135deg,#001b44,#004080);
+  }
+
+  .card {
+    background:#f9f9f9; padding:35px 25px; border-radius:16px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.35); text-align:center; width:320px;
+    animation:fadeIn 0.8s ease; border-top:6px solid #FFD700; position:relative;
+  }
+
+  .card img { width:75px; margin-bottom:15px; }
+  h2 { color:#001b44; margin-bottom:8px; font-size:1.3rem; }
+  .sub-title { font-size:0.9rem; color:#555; margin-bottom:25px; }
+
+  .input-group { position:relative; margin:12px 0; }
+  .input-group input {
+    width:100%; padding:12px 40px 12px 12px; border-radius:10px; border:1px solid #ccc;
+    outline:none; font-size:0.9rem;
+  }
+  .input-group input:focus {
+    border-color:#FFD700; box-shadow:0 0 8px rgba(230,184,0,0.4);
+  }
+  .input-group i {
+    position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    color:#777; cursor:pointer;
+  }
+
+  button {
+    width:100%; padding:12px; border:none; border-radius:10px;
+    background: linear-gradient(135deg,#FFD700,#b8860b);
+    font-weight:600; font-size:1rem; cursor:pointer; margin-top:14px;
+    transition:0.3s; color:#001b44; letter-spacing:0.5px;
+  }
+  button:hover { transform:translateY(-2px); filter:brightness(1.08); }
+
+  .error-msg { color:red; font-size:0.85rem; margin-top:8px; }
+  .success-msg { color:green; font-size:0.85rem; margin-top:8px; }
+  .footer-text { margin-top:20px; font-size:0.75rem; color:#666; }
+  .toggle-link { font-size:0.8rem; color:#004080; cursor:pointer; margin-top:10px; display:block; }
+
+  @keyframes fadeIn { from { opacity:0; transform: translateY(-20px);} to { opacity:1; transform: translateY(0);} }
+
+  /* Modal overlay */
+  .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background: rgba(0,0,0,0.5); justify-content:center; align-items:center; padding:15px;
+  }
+  .modal.active { display:flex; }
+  .modal .close-btn {
+    position:absolute; top:10px; right:15px; font-size:1.2rem; cursor:pointer; color:#001b44;
+  }
+
+  @media(max-width:400px){ .card { width:100%; padding:25px 15px; } }
+</style>
+</head>
+<body>
+
+<!-- Login Card -->
+<div class="card" id="loginCard">
+  <img src="img/logo-lpdbali.png" alt="Logo LPD Bali">
+  <h2>Login Admin LPD</h2>
+  <p class="sub-title">Sistem Antrian LPD Bali</p>
+
+  <div class="input-group">
+    <input type="text" id="adminUser" placeholder="Username" required>
+    <i class="fa fa-user"></i>
+  </div>
+  <div class="input-group">
+    <input type="password" id="adminPass" placeholder="Password" required>
+    <i class="fa fa-eye" id="togglePassLogin"></i>
+  </div>
+
+  <button id="loginBtn">Masuk</button>
+  <p id="loginError" class="error-msg"></p>
+  <span class="toggle-link" id="showRegister">Belum punya akun? Daftar di sini</span>
+  <div class="footer-text">© 2025 LPD Bali</div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal" id="registerModal">
+  <div class="card">
+    <span class="close-btn" id="closeRegister">&times;</span>
+    <h2>Daftar Admin Baru</h2>
+
+    <div class="input-group">
+      <input type="text" id="regUser" placeholder="Username" required>
+      <i class="fa fa-user"></i>
+    </div>
+    <div class="input-group">
+      <input type="password" id="regPass" placeholder="Password" required>
+      <i class="fa fa-eye" id="togglePassRegister"></i>
+    </div>
+    <div class="input-group">
+      <input type="password" id="regPassConfirm" placeholder="Konfirmasi Password" required>
+      <i class="fa fa-eye" id="togglePassConfirm"></i>
+    </div>
+
+    <button id="registerBtn">Daftar</button>
+    <p id="registerError" class="error-msg"></p>
+    <p id="registerSuccess" class="success-msg"></p>
+    <span class="toggle-link" id="showLogin">Sudah punya akun? Masuk</span>
+  </div>
+</div>
+
+<script>
+  // ===== TOGGLE PASSWORD =====
+  const togglePass = (inputId, iconId) => {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    icon.addEventListener("click", () => {
+      input.type = input.type === "password" ? "text" : "password";
+      icon.classList.toggle("fa-eye-slash");
+    });
+  }
+  togglePass("adminPass", "togglePassLogin");
+  togglePass("regPass", "togglePassRegister");
+  togglePass("regPassConfirm", "togglePassConfirm");
+
+  // ===== LOGIN =====
+  const loginBtn = document.getElementById("loginBtn");
+  const loginError = document.getElementById("loginError");
+
+  loginBtn.addEventListener("click", () => {
+    const user = document.getElementById("adminUser").value.trim();
+    const pass = document.getElementById("adminPass").value.trim();
+    const admins = JSON.parse(localStorage.getItem("admins")) || [];
+    const found = admins.find(a => a.username===user && a.password===pass);
+
+    if(found){
+      sessionStorage.setItem("adminLoggedIn", "true");
+      loginError.textContent = "";
+      alert("✅ Login berhasil!");
+      window.location.href = "index.html";
+    } else {
+      loginError.textContent = "⚠️ Username atau password salah!";
+    }
+  });
+
+  document.addEventListener("keydown", e => { if(e.key==="Enter") loginBtn.click(); });
+  if(sessionStorage.getItem("adminLoggedIn")==="true") window.location.href="index.html";
+
+  // ===== REGISTER =====
+  const registerModal = document.getElementById("registerModal");
+  const showRegister = document.getElementById("showRegister");
+  const showLogin = document.getElementById("showLogin");
+  const registerBtn = document.getElementById("registerBtn");
+  const registerError = document.getElementById("registerError");
+  const registerSuccess = document.getElementById("registerSuccess");
+  const closeRegister = document.getElementById("closeRegister");
+
+  const openRegister = () => { registerModal.classList.add("active"); }
+  const closeRegisterModal = () => {
+    registerModal.classList.remove("active");
+    registerError.textContent = "";
+    registerSuccess.textContent = "";
+  }
+
+  showRegister.addEventListener("click", openRegister);
+  showLogin.addEventListener("click", closeRegisterModal);
+  closeRegister.addEventListener("click", closeRegisterModal);
+
+  registerBtn.addEventListener("click", () => {
+    const user = document.getElementById("regUser").value.trim();
+    const pass = document.getElementById("regPass").value.trim();
+    const confirm = document.getElementById("regPassConfirm").value.trim();
+    let admins = JSON.parse(localStorage.getItem("admins")) || [];
+
+    registerError.textContent = "";
+    registerSuccess.textContent = "";
+
+    if(!user || !pass || !confirm) return registerError.textContent="⚠️ Semua field harus diisi!";
+    if(pass !== confirm) return registerError.textContent="⚠️ Password dan konfirmasi tidak cocok!";
+    if(admins.find(a=>a.username===user)) return registerError.textContent="⚠️ Username sudah digunakan!";
+
+    admins.push({ username:user, password:pass });
+    localStorage.setItem("admins", JSON.stringify(admins));
+    registerSuccess.textContent = "✅ Akun berhasil dibuat!";
+    setTimeout(closeRegisterModal, 1200);
+  });
+</script>
+
+</body>
+</html>
